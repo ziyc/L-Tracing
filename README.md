@@ -22,6 +22,9 @@ The framework is designed based on [L-Tracing: Fast Light Visibility Estimation 
 
   **III. NV+VI**: Volume Integration on Neural Volume, based on neural volume representation, directly apply volumetric integration on neural volumes.
   
+- We show the details of relighting with a novel environment illumination. 
+
+  <img src="./assets/relight_detail.png" width="100%">
 
 ## Getting started [WIP]
 
