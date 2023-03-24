@@ -5,8 +5,6 @@ logs/
 data/
 out/
 logs_*/
-buffer/
-env_map/
 **/__pycache__
 *.pyc
 trained_shapes/
