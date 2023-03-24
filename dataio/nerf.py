@@ -64,7 +64,8 @@ class SceneDataset(torch.utils.data.Dataset):
             
             if self.is_val:
                 # Load mask for visual evaluation
-                # this part borrow from TODO: find the link
+                # set alpha_thres=0.8 for visualization this part refer to: 
+                # https://github.com/google/nerfactor/blob/19651eb72af7f6174a4d9fb68c987047ba351980/nerfactor/models/nerfactor.py#L564
                 vis_mask = mask.clone()
                 vis_mask[vis_mask<0.8]=0
                 self.vis_masks.append(vis_mask)
