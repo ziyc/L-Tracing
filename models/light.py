@@ -144,7 +144,7 @@ def get_light(light_cfg):
         return EnvMap(**light_cfg)
     else:
         raise NotImplementedError
-    # TODO: support more light models
+    # TODO: support more light models like Spherical Gaussian
 
 if __name__=='__main__':
     light = source(16, '_')
