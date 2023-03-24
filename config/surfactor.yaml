@@ -1,0 +1,115 @@
+expname: lego_surf
+lvis_mode: ltracing
+
+device_ids: [0]     # single gpu           ; run on specified GPU
+# device_ids: [1, 0]  # DP                   ; run on specified GPU
+# device_ids: -1        # single GPU / DP / DDP; run on all available GPUs;
+
+data:
+  type: nerf
+  batch_size: 1       # one batch, one image
+  data_dir: data/nerf_synthetic/lego
+  rgb_file: rgba.png
+  downscale: 1        # downscale image for training
+  scale_radius: 1.1
+  pin_memory: True
+
+  N_rays: 1024         # N_rays for training
+  val_rayschunk: 1024 # N_rays for validation
+  val_downscale: 2    # downscale image for validation
+
+loss:
+  albedo_smooth_weight : 0.005
+  brdf_smooth_weight: 0.002
+  light_tv_weight: 5.0e-6
+  light_achro_weight: 0
+
+model:
+  framework: Surf
+  obj_bounding_radius: 1.0
+
+  variance_init: 0.05
+  noise_std: 0.01 
+  tracing_iter: 20
+
+  render:
+    linear2srgb: True
+    relight_olat: False       # Relight with single white point source
+    relight_probes: False     # Relight with HDR Light Probe Images
+    relight_env_map: False    # Relight with your own images
+    white_light_override: False
+    white_lvis_override: False
+
+  surface:
+    D: 8
+    W: 256
+    skips: [4]
+    radius_init: 0.5
+    embed_multires: 8
+
+  albedo:
+    D: 4
+    W: 128
+    skips: [3]
+    embed_N_freqs: 10
+    out_acti: sigmoid
+    use_geo_feature: False # Deciding whether to use geometric features from implicit surface.
+  albedo_scale: 0.77
+  albedo_bias: 0.03
+
+  brdf:
+    D: 4
+    W: 128
+    skips: [3]
+    embed_N_freqs: 10
+    use_geo_feature: False # Deciding whether to use geometric features from implicit surface.
+    final_out_dim: 3
+  light:
+    source:
+      modelname: source
+      light_h: 16
+      maxv: 1
+    probe:
+      modelname: Probes
+      light_h: 16
+      test_envmap_dir: data/light-probe/test
+    olat:
+      modelname: OLAT
+      light_h: 16
+      ambi_inten: 0
+      olat_inten: 200
+    env_map:
+      modelname: Envmap
+      light_h: 16
+      env_map_path: / # path to your own relight image path
+
+training:
+  debug: False
+  lr:
+    default: 0
+    brdf_z: 5.0e-3
+    albedo: 5.0e-3
+    light: 5.0e-3
+
+  speed_factor: 10.0    # NOTE: unexpectedly, this is very important. setting to 1.0 will cause some of the DTU instances can not converge correctly.
+  loss_scale_factor: 1
+  log_root_dir: "logs"
+
+  # lr decay
+  scheduler:
+    type: exponential_step
+    min_factor: 0.999
+
+  num_iters: 5000 # 5k
+
+  ckpt_file: / # the path to the trained shape ckpt
+  ckpt_ignore_keys: []     # only change if you want to drop certain keys in the saved checkpionts.
+  ckpt_only_use_keys: ['model'] # only change if you want to only use certain keys in the saved checkpionts.
+
+  monitoring: tensorboard
+
+  i_save: 900       # unit: seconds
+  i_backup: 1000   # unit: itertation steps
+
+  i_val: 500
+  i_val_mesh: -1
